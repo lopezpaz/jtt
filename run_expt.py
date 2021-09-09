@@ -24,7 +24,7 @@ def main(args):
         wandb.config.update(args)
 
     # BERT-specific configs copied over from run_glue.py
-    if (args.model.startswith("bert") and args.use_bert_params): 
+    if (args.model.startswith("bert") and args.use_bert_params):
         args.max_grad_norm = 1.0
         args.adam_epsilon = 1e-8
         args.warmup_steps = 0
@@ -173,7 +173,7 @@ def main(args):
     else:
         epoch_offset = 0
 
-    
+
     train_csv_logger = CSVBatchLogger(os.path.join(args.log_dir, f"train.csv"),
                                       train_data.n_groups,
                                       mode=mode)
@@ -223,7 +223,7 @@ if __name__ == "__main__":
                         "--shift_type",
                         choices=shift_types,
                         required=True)
-                        
+
     parser.add_argument("--wandb", action="store_true", default=False)
     parser.add_argument("--project_name", type=str, default="spurious", help="wandb project name")
     # Confounders
@@ -246,7 +246,7 @@ if __name__ == "__main__":
 
     # Objective
     parser.add_argument("--loss_type", default="erm",
-                        choices=["erm", "group_dro", "joint_dro"])
+                        choices=["erm", "pezeshki", "group_dro", "joint_dro"])
     parser.add_argument("--alpha", type=float, default=0.2)
     parser.add_argument("--generalization_adjustment", default="0.0")
     parser.add_argument("--automatic_adjustment",
@@ -305,11 +305,11 @@ if __name__ == "__main__":
     parser.add_argument("--aug_col", default=None)
 
     args = parser.parse_args()
-    
-    if args.model.startswith("bert"): # and args.model != "bert": 
+
+    if args.model.startswith("bert"): # and args.model != "bert":
         if args.use_bert_params:
             print("\n"*5, f"Using bert params", "\n"*5)
-        else: 
+        else:
             print("\n"*5, f"WARNING, Using {args.model} without using BERT HYPER-PARAMS", "\n"*5)
 
     check_args(args)
@@ -317,5 +317,5 @@ if __name__ == "__main__":
         print("\n" * 2
               + f"WARNING: You are using '{args.metadata_csv_name}' instead of the default 'metadata.csv'."
               + "\n" * 2)
-        
+
     main(args)

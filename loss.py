@@ -21,7 +21,7 @@ class LossComputer:
         btl=False,
         joint_dro_alpha=None,
     ):
-        assert loss_type in ["group_dro", "erm", "joint_dro"]
+        assert loss_type in ["group_dro", "erm", "joint_dro", "pezeshki"]
 
         self.criterion = criterion
         self.loss_type = loss_type
@@ -80,6 +80,10 @@ class LossComputer:
                     group_loss, group_count)
         elif self.loss_type == "joint_dro":
             actual_loss = self._joint_dro_loss_computer(per_sample_losses)
+            weights = None
+        elif self.loss_type == "pezeshki":
+            actual_loss = (per_sample_losses[torch.where(y == 1)].mean() +
+                           per_sample_losses[torch.where(y == 0)].mean())
             weights = None
         else:
             assert self.loss_type == "erm"

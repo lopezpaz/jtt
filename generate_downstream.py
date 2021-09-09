@@ -55,7 +55,7 @@ def get_spurious_col_csv(args):
             & (train_data["sentence2_has_negation"] == 1)
         )
         true = "gold_label"
-        
+
     spur_col = train_data[["spurious", index_col]]
     new_metadata = pd.merge(
         new_metadata, spur_col, how="outer", on=index_col
@@ -64,7 +64,7 @@ def get_spurious_col_csv(args):
 
     # Save metadata
     new_metadata.to_csv(args.output_path)
-    
+
 
 def generate_downstream_commands(args):
     exp_dir = join(join(args.results_dir, args.dataset), args.exp_name)
@@ -85,13 +85,19 @@ def generate_downstream_commands(args):
 
     for method in methods:
         if method == "JTT":
-            up_weights = [20, 50, 100] 
+            up_weights = [20, 50, 100]
             loss_type = "erm"
             aug_col = args.aug_col
             confounder_name = args.confounder_name
         elif method == "ERM":
             up_weights = [0]
             loss_type = "erm"
+            aug_col = None
+            confounder_name = args.confounder_name
+            args.use_bert_params = 0
+        elif method == "Pezeshki":
+            up_weights = [0]
+            loss_type = "pezeshki"
             aug_col = None
             confounder_name = args.confounder_name
             args.use_bert_params = 0
@@ -158,7 +164,7 @@ def generate_downstream_commands(args):
                     + (" --reweight_groups" if loss_type == "group_dro" else "")
                     + (f" --joint_dro_alpha {joint_dro_alpha}" if loss_type == "joint_dro" else "")
                 )
-                
+
                 file.write("\n")
                 file.write(final_text)
             print(f"\nsaved in {job_script_path}\n\n")
@@ -204,7 +210,7 @@ if __name__ == "__main__":
         default="job.sh",
         help="name for sbatch script for training models",
     )
-    
+
     # Post Process args
     parser.add_argument(
         "--extension",
@@ -212,7 +218,7 @@ if __name__ == "__main__":
         default="0_None",
         help="extension on upstream exp csvs, only changes if upweight",
     )
-    
+
     parser.add_argument(
         "--metadata_csv_name",
         type=str,
